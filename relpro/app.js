@@ -50,7 +50,7 @@ angular.module('contactList', [])
 
     var initializeGlue = function () {
       Tick42CRM({
-          application: 'GssDesktopManager',
+          application: 'T42MSDynamicCRMHelper',
           authentication: localStorage.getItem('accessToken'),
           gateway: {
             ws: 'wss://dev2.tick42.com:50110',
@@ -62,58 +62,6 @@ angular.module('contactList', [])
           contactList.searchProviders = {}
           contactList.query = null;
           contactList.externalContacts = [];
-
-          // Create desktop manager
-          const manager = gss.createDesktopManager(T42.glue.agm, {
-            debug: true
-          });
-          manager.start();
-
-
-          const searchService = new gss.GlueSearchService(T42.glue.agm);
-          searchService.ready()
-          searchService.onEntityTypes((err, entityTypes) => {
-            if (!err) {
-              const type = entityTypes.get('T42.Contact');
-              if (type && !contactList.query) {
-                const query = searchService.createQuery(type, {
-                  limit: 10
-                })
-                query.onData(data => {
-                  const contacts = data.entities.map(entity => {
-                    entity.provider = data.provider;
-                    return entity;
-                  })
-                  $scope.$apply(function() {
-                    contactList.externalContacts = contactList.externalContacts.concat(contacts) 
-                  })
-                })
-                contactList.query = query;
-              }
-            }
-          })
-
-          contactList.addProvider = function(name) {
-            if (manager) {
-              manager.add({
-                name: name,
-                type: 'agm',
-                application: name
-              })
-              contactList.searchProviders[name] = true
-            }
-          }
-
-          contactList.removeProvider = function(name) {
-            if (manager) {
-              manager.remove({
-                name: name,
-                type: 'agm',
-                application: name
-              })
-              contactList.searchProviders[name] = false
-            }
-          }
 
           contactList.searchExternalSources = function() {
             if (contactList.query) {
@@ -180,27 +128,6 @@ angular.module('contactList', [])
               contact: contact
             });
           };
-
-          var logger = T42.glue.logger;
-
-          T42.glue.agm.serverAdded(function(server) {
-            var instance = server.instance || 'unknown'
-            logger.debug('Server "' + server.application + '" has been added. Instance ' + instance + '. Id: ' + server.pid)
-          })
-
-          T42.glue.agm.serverRemoved(function(server) {
-            var instance = server.instance || 'unknown'
-
-            logger.debug('Server "' + server.application + '" has been removed. Instance ' + instance + '. Id: ' + server.pid)
-          })
-
-          T42.glue.connection.connected(function(a) {
-            logger.info('Connected to gateway ' + a)
-          })
-
-          T42.glue.connection.disconnected(function(a) {
-            logger.error('Disconnected from gateway ' + a)
-          })
         })
         .catch(function (err) {
           localStorage.removeItem('accessToken');

@@ -40,14 +40,6 @@
           <div class="form-group has-feedback">
             <label class="control-label">Search</label>
             <div class="input-group">
-              <span class="input-group-btn">
-                <button class="btn btn-info" ng-click="contactList.addProvider('OUTLOOK');" ng-show="!contactList.searchProviders.OUTLOOK">Enable outlook</button>
-                <button class="btn btn-danger" ng-disabled="true" ng-show="contactList.searchProviders.OUTLOOK">Outlook active</button>
-              </span>
-              <span class="input-group-btn">
-                <button class="btn btn-info" ng-click="contactList.addProvider('Netsuite Demo');" ng-show="!contactList.searchProviders['Netsuite Demo']">Enable netsuite</button>
-                <button class="btn btn-danger" ng-disabled="true" ng-show="contactList.searchProviders['Netsuite Demo']">Netsuite active</button>
-              </span>
               <input type="text" class="form-control" placeholder="Search" ng-model="contactList.searchFilter" />
               <i class="glyphicon glyphicon-search form-control-feedback"></i>
               <i ng-click="contactList.clearSearch()" class="glyphicon glyphicon-remove form-control-feedback form-clear"></i>
