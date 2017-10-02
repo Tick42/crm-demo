@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <title>Helper app</title>
+</head>
+
+<body>
+    <h2>Helper</h2>
+    <h2><span id="welcomeMsg">Please log in</span></h2>
+    <input type="button" value="Login" id="loginBtn" />
+    <input type="button" value="Logoff" id="logoffBtn" style="display:none" />
+    <input type="button" value="UpdateContact" id="ucBtn" style="display:none" />
+    <input type="button" value="ResolveContact" id="rcBtn" style="display:none" />
+    </br>
+    <div id="resultContent"></div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <label for="username">Username: </label>
+            <input type="text" id="username">
+            </br>
+            <label for="password">Passowrd: </label>
+            <input type="password" id="password">
+            </br>
+            <input type="button" value="Login" id="doLoginBtn" />
+        </div>
+    </div>
+    <script src="./../assets/glue-core/tick42-glue-core-3.2.6.js"></script>
+    <script src="http://cdn.auth0.com/js/auth0/8.9.3/auth0.min.js"></script>
+    <script src="./helper.js"></script>
+</body>
+
+</html>

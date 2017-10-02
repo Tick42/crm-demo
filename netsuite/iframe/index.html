@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Glue Canvas</title>
+
+  <script src="../lib/tick42-glue-3-beta.min.js"></script>
+  <script src="startsWith.js"></script>
+
+  <script type="text/javascript">
+
+    // Here you can get credentials from the CRM (Access token for example)
+    var credentials = {
+        username: 'ivan.pidov@gmail.com',
+        password: '0885366866'
+    };
+    
+    Glue({
+      application: 'NetSuite Connector', 
+      desktop: false,  
+      gateway: {
+          ws: 'wss://glue42.tick42.com:50110',
+          http: 'https://glue42.tick42.com:50110',
+          protocolVersion: 2
+      },
+      auth: credentials
+    }).then(function(glue) {
+      initComplete(glue);
+    })
+    .catch(function(err) {
+      console.log(err);
+    })
+
+    var initComplete = function (glue) {
+        var lastServerAdded;
+
+        glue.agm.serverAdded(function(server) {
+          lastServerAdded = new Date().getTime();
+        });
+
+        var serverAddedInterval = setInterval(function() {
+          if (new Date().getTime() - lastServerAdded >= 1000) {
+            // Call CRM Specific method via their SDK and dispatch onLoad event
+            // Salesforce example:
+            /*
+              Sfdc.canvas.client.publish(signedRequest.client, {
+                name: 'tick42_glue.onLoad',
+                payload: {}
+              });
+            */
+            clearInterval(serverAddedInterval);
+          }
+        }, 260);
+
+        glue.agm.methodAdded(function(method) {
+          // Call CRM Specific method via their SDK and dispatch methodAdded event
+          // Salesforce example:
+          /* 
+            Sfdc.canvas.client.publish(signedRequest.client, {
+              name: 'tick42_glue.methodAdded',
+              payload: method
+            });
+          */
+        });
+
+        glue.agm.methodRemoved(function(method) {
+          // Call CRM Specific method via their SDK and dispatch methodRemoved event
+          // Salesforce example:
+          /*
+            Sfdc.canvas.client.publish(signedRequest.client, {
+              name: 'tick42_glue.methodRemoved',
+              payload: method
+            });
+          */
+        });
+
+        // Listen for 'invoke' events from the CRM speicifc SDK and proxy it to glue
+        // Salesforce example: 
+        /*
+          Sfdc.canvas.client.subscribe(signedRequest.client, {
+            name: 'tick42_glue.invoke',
+            onData: function(payload) {
+              var targets;
+              if (payload.methodName === 'T42.SyncAccount' || payload.methodName === 'T42.SyncContact') {
+                targets = glue.agm.servers().filter(function(value, index, array) {
+                  return !value.application.startsWith("Glue Canvas");
+                });
+              }
+              // Proxy the invocation to glue.
+              glue.agm.invoke(payload.methodName, payload.arguments, targets || payload.target, {}, function() {}, function() {});
+            }
+          });
+        */
+
+        // Register Glue events
+        glue.agm.register({
+          name: 'T42.UpdateContactDetails',
+          display_name: 'Update Contact Details',
+          accepts:
+              'Composite: { String nativeId, String systemName }[]? ids,'
+            + 'Composite: { '
+              + 'Composite: { '
+              +   'String? lastName, '
+              +   'String? firstName, '
+              +   'String? otherNames, '
+              +   'String? honorific, '
+              +   'String? postNominalLetters '
+              +   '} name, '
+              + 'Composite: { '
+              +   'String? streetAddress, '
+              +   'String? city, '
+              +   'String? stateOrRegion, '
+              +   'String? postalCode, '
+              +   'String? country '
+              +   '} homeAddress, '
+              + 'Composite: { '
+              +   'String? streetAddress, '
+              +   'String? city, '
+              +   'String? stateOrRegion, '
+              +   'String? postalCode, '
+              +   'String? country '
+              +   '} officeAddress, '
+              + 'String[]? phone, '
+              + 'String[]? mobile, '
+              + 'String[]? email '
+              + '} contact',
+        }, function(args) {
+          console.log("Update contact details ags: ", args);
+          args.ids.forEach(function(id) {
+            if (id.systemName.toLowerCase() === 'netsuite') {
+              // Proxy the handling to the CRM
+              // Salesforce example
+              /*
+                Sfdc.canvas.client.publish(signedRequest.client, {
+                  name: 'tick42_glue.UpdateContactDetails',
+                  payload: {
+                    id: id.nativeId,
+                    details: args.contact
+                  }
+                });
+              */
+              
+              // In our case we simply use glue methods
+              glue.agm.invoke('T42CRM.UpdateContactDetails', {
+                id: id.nativeId,
+                details: args.contact
+              }, 'all', {}, function() {
+                console.log("Success")
+              }, function(err) {
+                console.log(err);
+              });
+            }
+          });
+        });
+
+        glue.agm.register({
+          name: 'T42.SyncAccount',
+          display_name: 'Sync Account',
+          accepts: 'Composite: { Composite: { String nativeId, String systemName }[]? ids, String? name } account',
+          object_types: ['T42.Account']
+        }, function (args) {
+          // Proxy the handling to the CRM
+          // Salesforce example
+          /*
+            Sfdc.canvas.client.publish(signedRequest.client, {
+              name: 'tick42_glue.SyncAccount',
+              payload: args
+            });
+          */
+
+          // In our case we simply use glue methods
+          glue.agm.invoke('T42CRM.SyncAccount', args);
+        });
+
+        glue.agm.register({
+          name: 'T42.SyncContact',
+          display_name: 'Sync Contact',
+          accepts: 'Composite: { Composite: { String nativeId, String systemName }[]? ids, String[]? emails, String? fullName } contact',
+          object_types: ['T42.Contact']
+        }, function (args) {
+          // Proxy the handling to the CRM
+          // Salesforce example
+          /*
+            Sfdc.canvas.client.publish(signedRequest.client, {
+              name: 'tick42_glue.SyncContact',
+              payload: args
+            });
+          */
+
+          // In our case we simply use glue methods
+        });
+
+        glue.agm.register({
+          name: 'T42.LogContactCall',
+          display_name: 'Log a Call',
+          accepts: 'Composite: { '
+            +   'Composite: { '
+            +     'String nativeId, '
+            +     'String systemName '
+            +     '}[]? ids, '
+            +   'String[]? emails, '
+            +   'String? fullName '
+            +   '} contact, '
+            + 'String? subject, '
+            + 'Long? dueDate, '
+            + 'String? description',
+          object_types: ['T42.Contact']
+        }, function (args) {
+          // Proxy the handling to the CRM
+          // Salesforce example
+          /*
+            Sfdc.canvas.client.publish(signedRequest.client, {
+              name: 'tick42_glue.LogContactCall',
+              payload: args
+            });
+          */
+          // In our case we simply use glue methods
+          glue.agm.invoke('T42CRM.LogContactCall', args);
+        });
+    }
+  </script>
+</head>
+
+</html>
+

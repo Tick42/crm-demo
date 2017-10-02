@@ -1,0 +1,80 @@
+body {
+  font-size: 12px;
+  background: #0099D8;
+}
+
+.table > tbody > tr > th {
+  background: #E5E5E5;
+  color: #4b4b4b;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.table > tbody > tr {
+  color: #2b2b2b;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+  background: #DFE4EA;
+}
+
+.btn {
+  font-size: 12px;
+}
+
+.btn-sm {
+  padding: 2px 5px;
+}
+
+.btn-success {
+  background: #508D09;
+  border-color: #508D09;
+}
+
+.btn-primary {
+  background: #287587;
+  border-color: #287587;
+}
+
+.table>tbody>tr>td, 
+.table>tfoot>tr>td, 
+.table>thead>tr>td {
+  padding: 2px 3px;
+  border: none;
+}
+
+.table>thead>tr>th,
+.table>tfoot>tr>th, 
+.table>tbody>tr>th {
+  padding: 5px;
+  border: none;
+}
+
+.panel {
+  border: none;
+  border-radius: 0;
+}
+
+.panel-body {
+  padding: 0;
+}
+
+.panel-default>.panel-heading {
+  border-radius: 0;
+  background: #287587;
+  color: #fff;
+}
+
+.search {
+  padding: 10px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-clear {
+  right: 30px;
+  cursor: pointer;
+  pointer-events: auto;
+}

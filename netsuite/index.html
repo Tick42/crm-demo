@@ -1,0 +1,106 @@
+<!doctype html>
+<html ng-app="contactList" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo - Contact List</title>
+  <link href="../lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="styles.css" rel="stylesheet" />
+  <style>
+    .table td.action-col {
+      text-align: center;
+    }
+    
+    .table tbody>tr>td {
+      vertical-align: middle !important;
+    }
+    
+    .bg-success {
+      background-color: #3fb618 !important;
+    }
+  </style>
+</head>
+
+<body style="padding-top: 15px;" ng-cloak>
+  <div class="container" ng-controller="ContactListController">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1">
+        <nav class="navbar navbar-default">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">
+                Netsuite
+              </a>
+              <p class="navbar-text" ng-show="user">Signed in as {{user}}</p>
+              <button type="button" class="btn btn-default navbar-btn" ng-show="user" ng-click="logout()">Log Out</button>
+            </div>
+          </div>
+        </nav>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h2 class="panel-title">NetSuite</h2>
+          </div>
+          <div class="panel-body">
+            <div class="search">
+              <div class="form-group has-feedback">
+                <input type="text" class="form-control" placeholder="Search" ng-model="searchFilter" />
+                <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                <i ng-click="clearSearch()" class="glyphicon glyphicon-remove form-control-feedback form-clear"></i>
+              </div>
+            </div>
+            <table class="table table-striped">
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th></th>
+              </tr>
+              <tr ng-repeat="contact in contacts | fuse: [{ name: 'name.firstName', weight: 0.3 }, { name: 'name.lastName', weight: 0.7 }, { name: 'emails', weight: 0.3 }]: searchFilter: { include: [ 'score' ], tokenize: true }"
+                ng-class="{'bg-success': contactEmail && contact.emails[0] === contactEmail}" ng-click="selectContact(contact, true)">
+                <td>{{contact.name.honorific}} {{contact.name.firstName}} {{contact.name.lastName}}</td>
+                <td>{{contact.emails[0]}}</td>
+                <td class="action-col">
+                  <a class="btn btn-sm btn-success" href="#" role="button" ng-click="resolveDetails(contact); $event.stopPropagation();">Resolve Details</a>
+                </td>
+              </tr>
+            </table>
+            <div class="search">
+              <div class="row">
+                <form ng-submit="addContact(); $event.preventDefault();">
+                  <div class="col-sm-5">
+                    <div class="form-group">
+                      <input type="text" class="form-control" placeholder="Name" ng-model="newContact.fullName" />
+                    </div>
+                  </div>
+                  <div class="col-sm-5">
+                    <div class="form-group">
+                      <input type="text" class="form-control" placeholder="Email" ng-model="newContact.emails" />
+                    </div>
+                  </div>
+                  <div class="col-sm-2">
+                    <div class="form-group">
+                      <button class="btn btn-success">Add contact</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../lib/tick42crm/Tick42CRM.js"></script>
+  <script src="https://cdn.auth0.com/js/lock/10.9.1/lock.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.3.2/superagent.js"></script>
+  <script src="../lib/jquery.min.js"></script>
+  <script src="../lib/fuse.min.js"></script>
+  <script src="../lib/angular.min.js"></script>
+  <script src="../lib/bootstrap/js/bootstrap.min.js"></script>
+  <script src="../lib/EventEmitter.js"></script>
+  <script src="app.js"></script>
+  <script src="gluify.js"></script>
+</body>
+
+</html>
